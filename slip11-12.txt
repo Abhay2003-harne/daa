@@ -1,0 +1,242 @@
+Slip 11
+Q.1) Write a programs to implement DFS (Depth First Search) and determine the time complexity for the same. 
+Ans:
+#include <iostream>
+#include <vector>
+#include <stack>
+
+using namespace std;
+
+// Function to perform DFS traversal
+void DFS(int vertex, vector<vector<int>>& adjList, vector<bool>& visited) {
+    stack<int> s;
+    s.push(vertex);
+    visited[vertex] = true;
+
+    while (!s.empty()) {
+        int current = s.top();
+        s.pop();
+        cout << current << " ";  // Print the vertex
+
+        // Traverse all the adjacent vertices of the current vertex
+        for (int neighbor : adjList[current]) {
+            if (!visited[neighbor]) {
+                visited[neighbor] = true;
+                s.push(neighbor);
+            }
+        }
+    }
+}
+
+int main() {
+    int vertices, edges;
+    cout << "Enter number of vertices and edges: ";
+    cin >> vertices >> edges;
+
+    vector<vector<int>> adjList(vertices);
+    vector<bool> visited(vertices, false);
+
+    cout << "Enter edges (start vertex, end vertex):" << endl;
+    for (int i = 0; i < edges; i++) {
+        int u, v;
+        cin >> u >> v;
+        adjList[u].push_back(v);
+        adjList[v].push_back(u); // For undirected graph
+    }
+
+    cout << "DFS Traversal starting from vertex 0: ";
+    DFS(0, adjList, visited);
+
+    return 0;
+}
+
+Q.2 Write a program to find shortest paths from a given vertex in a weighted connected graph, to other vertices using Dijkstra’s algorithm.
+Ans:
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <climits>
+
+using namespace std;
+
+typedef pair<int, int> pii; // Pair to store (distance, vertex)
+
+// Function to implement Dijkstra's algorithm
+void dijkstra(int start, int vertices, vector<vector<pii>>& adjList) {
+    vector<int> dist(vertices, INT_MAX); // Distance array, initialized to infinity
+    dist[start] = 0; // Distance to the source is 0
+
+    priority_queue<pii, vector<pii>, greater<pii>> pq; // Min-heap priority queue
+    pq.push({0, start}); // Push the source with distance 0
+
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        int d = pq.top().first;
+        pq.pop();
+
+        if (d > dist[u]) continue; // Skip if the distance is not optimal
+
+        // Explore all the adjacent vertices of u
+        for (auto& edge : adjList[u]) {
+            int v = edge.first;
+            int weight = edge.second;
+
+            if (dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                pq.push({dist[v], v}); // Push the updated distance to the queue
+            }
+        }
+    }
+
+    // Output the shortest distances
+    cout << "Shortest distances from vertex " << start << " are:" << endl;
+    for (int i = 0; i < vertices; i++) {
+        if (dist[i] == INT_MAX) {
+            cout << "Vertex " << i << " is unreachable." << endl;
+        } else {
+            cout << "Vertex " << i << ": " << dist[i] << endl;
+        }
+    }
+}
+
+int main() {
+    int vertices, edges;
+    cout << "Enter number of vertices and edges: ";
+    cin >> vertices >> edges;
+
+    vector<vector<pii>> adjList(vertices);
+
+    cout << "Enter edges (start vertex, end vertex, weight):" << endl;
+    for (int i = 0; i < edges; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        adjList[u].push_back({v, w});
+        adjList[v].push_back({u, w}); // For undirected graph
+    }
+
+    int start;
+    cout << "Enter the source vertex: ";
+    cin >> start;
+
+    dijkstra(start, vertices, adjList);
+
+    return 0;
+}
+
+*************************************************************************************************************
+
+Slip 12
+Q.1) Write a program to implement BFS (Breadth First Search) and determine the time complexity for the same. 
+Ans:
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+// Function to perform BFS traversal
+void BFS(int start, vector<vector<int>>& adjList, vector<bool>& visited) {
+    queue<int> q;
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty()) {
+        int current = q.front();
+        q.pop();
+        cout << current << " ";  // Print the vertex
+
+        // Traverse all the adjacent vertices of the current vertex
+        for (int neighbor : adjList[current]) {
+            if (!visited[neighbor]) {
+                visited[neighbor] = true;
+                q.push(neighbor);
+            }
+        }
+    }
+}
+
+int main() {
+    int vertices, edges;
+    cout << "Enter number of vertices and edges: ";
+    cin >> vertices >> edges;
+
+    vector<vector<int>> adjList(vertices);
+    vector<bool> visited(vertices, false);
+
+    cout << "Enter edges (start vertex, end vertex):" << endl;
+    for (int i = 0; i < edges; i++) {
+        int u, v;
+        cin >> u >> v;
+        adjList[u].push_back(v);
+        adjList[v].push_back(u);  // For undirected graph
+    }
+
+    cout << "BFS Traversal starting from vertex 0: ";
+    BFS(0, adjList, visited);
+
+    return 0;
+}
+Q.2) Write a program to sort a given set of elements using the Selection sort method and determine the time required to sort the elements.
+Ans:
+#include <iostream>
+#include <vector>
+#include <ctime>
+
+using namespace std;
+
+// Function to perform Selection Sort
+void selectionSort(vector<int>& arr) {
+    int n = arr.size();
+
+    for (int i = 0; i < n - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        // Swap the found minimum element with the first element
+        swap(arr[i], arr[minIndex]);
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+
+    // Generating random numbers
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 1000;  // Random numbers between 0 and 999
+    }
+
+    // Print the array before sorting
+    cout << "Array before sorting: ";
+    for (int i = 0; i < n; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+
+    // Start timing
+    clock_t start = clock();
+    
+    selectionSort(arr);
+    
+    // End timing
+    clock_t end = clock();
+    
+    // Print the sorted array
+    cout << "Array after sorting: ";
+    for (int i = 0; i < n; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+
+    // Calculate time taken for sorting
+    double time_taken = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Time taken to sort the array: " << time_taken << " seconds" << endl;
+
+    return 0;
+}

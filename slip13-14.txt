@@ -1,0 +1,244 @@
+Slip 13
+Q.1) Write a program to find minimum number of multiplications in Matrix Chain Multiplication. 
+Ans:
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+// Function to find the minimum number of multiplications needed
+int matrixChainOrder(const vector<int>& dims) {
+    int n = dims.size();
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+
+    // dp[i][j] will hold the minimum number of multiplications needed to multiply matrices i through j
+    for (int length = 2; length < n; length++) {
+        for (int i = 1; i < n - length + 1; i++) {
+            int j = i + length - 1;
+            dp[i][j] = INT_MAX;
+
+            for (int k = i; k <= j - 1; k++) {
+                int q = dp[i][k] + dp[k + 1][j] + dims[i - 1] * dims[k] * dims[j];
+                dp[i][j] = min(dp[i][j], q);
+            }
+        }
+    }
+
+    return dp[1][n - 1];  // The result will be in dp[1][n-1]
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of matrices: ";
+    cin >> n;
+
+    vector<int> dims(n + 1);
+    cout << "Enter the dimensions of matrices:" << endl;
+    for (int i = 0; i <= n; i++) {
+        cin >> dims[i];
+    }
+
+    cout << "Minimum number of multiplications: " << matrixChainOrder(dims) << endl;
+
+    return 0;
+}
+Q.2) Write a program to implement an optimal binary search tree and also calculate the best case and worst-case complexity.
+Ans:
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+// Function to find the cost of optimal BST
+int optimalBST(const vector<int>& keys, const vector<int>& freq, int n) {
+    vector<vector<int>> dp(n, vector<int>(n, 0));  // dp[i][j] will store the minimum cost for keys[i..j]
+    vector<vector<int>> cost(n, vector<int>(n, 0));
+
+    // Filling the dp table
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = freq[i];  // Cost of a single key is just its frequency
+    }
+
+    // Build the dp table for chains of increasing length
+    for (int length = 2; length <= n; length++) {
+        for (int i = 0; i < n - length + 1; i++) {
+            int j = i + length - 1;
+            dp[i][j] = INT_MAX;
+            int totalFreq = 0;
+            for (int k = i; k <= j; k++) {
+                totalFreq += freq[k];
+            }
+
+            // Try every key as the root and calculate the minimum cost
+            for (int k = i; k <= j; k++) {
+                int costLeft = (k > i) ? dp[i][k - 1] : 0;
+                int costRight = (k < j) ? dp[k + 1][j] : 0;
+                dp[i][j] = min(dp[i][j], costLeft + costRight + totalFreq);
+            }
+        }
+    }
+
+    return dp[0][n - 1];  // The result is the minimum cost for the entire tree
+}
+
+int main() {
+    int n;
+    cout << "Enter number of keys: ";
+    cin >> n;
+
+    vector<int> keys(n);
+    vector<int> freq(n);
+
+    cout << "Enter the keys: ";
+    for (int i = 0; i < n; i++) {
+        cin >> keys[i];
+    }
+
+    cout << "Enter the frequencies of the keys: ";
+    for (int i = 0; i < n; i++) {
+        cin >> freq[i];
+    }
+
+    cout << "Minimum cost of optimal BST: " << optimalBST(keys, freq, n) << endl;
+
+    return 0;
+}
+
+******************************************************************************************************************************
+
+Slip 14:
+Q.1) Write a program to sort a list of n numbers in ascending order using Insertion sort and determine the time required to sort the elements. 
+Ans:
+#include <iostream>
+#include <vector>
+#include <chrono>  // For measuring time
+
+using namespace std;
+using namespace std::chrono;
+
+// Function to perform Insertion Sort
+void insertionSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        
+        // Move elements of arr[0..i-1] that are greater than key to one position ahead of their current position
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    cout << "Enter the elements: ";
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    // Start time
+    auto start = high_resolution_clock::now();
+
+    // Perform Insertion Sort
+    insertionSort(arr);
+
+    // End time
+    auto stop = high_resolution_clock::now();
+    
+    // Calculate the duration
+    auto duration = duration_cast<microseconds>(stop - start);
+    
+    // Output the sorted array
+    cout << "Sorted elements: ";
+    for (int i = 0; i < n; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+    
+    // Output the time taken to sort
+    cout << "Time taken to sort the elements: " << duration.count() << " microseconds" << endl;
+
+    return 0;
+}
+Q.2) Write a program to implement DFS and BFS. Compare the time complexity.
+Ans :
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <stack>
+
+using namespace std;
+
+// DFS Recursive function
+void DFS(int node, vector<vector<int>>& adj, vector<bool>& visited) {
+    visited[node] = true;
+    cout << node << " ";
+    
+    // Visit all the adjacent nodes of the current node
+    for (int i : adj[node]) {
+        if (!visited[i]) {
+            DFS(i, adj, visited);
+        }
+    }
+}
+
+// BFS function
+void BFS(int start, vector<vector<int>>& adj) {
+    vector<bool> visited(adj.size(), false);
+    queue<int> q;
+    
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        cout << node << " ";
+
+        // Visit all the adjacent nodes of the current node
+        for (int i : adj[node]) {
+            if (!visited[i]) {
+                visited[i] = true;
+                q.push(i);
+            }
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    cout << "Enter the number of nodes and edges: ";
+    cin >> n >> m;
+
+    vector<vector<int>> adj(n);
+
+    cout << "Enter the edges (u v): " << endl;
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);  // For undirected graph
+    }
+
+    // Perform DFS
+    vector<bool> visited(n, false);
+    cout << "DFS starting from node 0: ";
+    DFS(0, adj, visited);
+    cout << endl;
+
+    // Perform BFS
+    cout << "BFS starting from node 0: ";
+    BFS(0, adj);
+    cout << endl;
+
+    return 0;
+}
