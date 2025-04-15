@@ -1,0 +1,239 @@
+Slip 3)
+Q.1) Write a program to sort a given set of elements using the Quick sort method and determine the time required to sort the elements.
+Ans:
+#include <iostream>
+#include <vector>
+#include <cstdlib>      // for rand()
+#include <ctime>        // for clock()
+#include <algorithm>    // for random_shuffle (optional)
+
+using namespace std;
+
+// Quick Sort Partition Function
+int partition(vector<int>& arr, int low, int high) {
+    int pivot = arr[high]; // Last element as pivot
+    int i = low - 1;        // Index of smaller element
+
+    for (int j = low; j < high; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+
+    swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+// Quick Sort Recursive Function
+void quickSort(vector<int>& arr, int low, int high) {
+    if (low < high) {
+        int p = partition(arr, low, high);
+        quickSort(arr, low, p - 1);
+        quickSort(arr, p + 1, high);
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter number of elements to sort: ";
+    cin >> n;
+
+    vector<int> arr(n);
+
+    // Generate random elements
+    srand(time(0)); // Seed for randomness
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 1000; // Random numbers between 0 and 999
+    }
+
+    cout << "\nUnsorted array:\n";
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << "\n";
+
+    // Start timing
+    clock_t start = clock();
+
+    quickSort(arr, 0, n - 1);
+
+    // End timing
+    clock_t end = clock();
+    double time_taken = double(end - start) / CLOCKS_PER_SEC;
+
+    cout << "\nSorted array:\n";
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << "\n";
+
+    cout << "\nTime taken by Quick Sort: " << time_taken << " seconds\n";
+
+    return 0;
+}
+
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1
+
+Q.2) Write a program to find Minimum Cost Spanning Tree of a given undirected graph using Prims algorithm
+Ans:
+#include <iostream> 
+#include <climits> 
+#include <vector> 
+using namespace std; 
+#define V 5 // You can change the number of vertices here 
+// Find the vertex with minimum key value 
+int minKey(vector<int>& key, vector<bool>& mstSet) { 
+int min = INT_MAX, min_index; 
+for (int v = 0; v < V; v++) 
+if (!mstSet[v] && key[v] < min) 
+min = key[v], min_index = v; 
+return min_index; 
+} 
+// Print MST 
+void printMST(vector<int>& parent, vector<vector<int>>& graph) { 
+    cout << "Edge \tWeight\n"; 
+    int total = 0; 
+    for (int i = 1; i < V; i++) { 
+        cout << parent[i] << " - " << i << "\t" << graph[i][parent[i]] << endl; 
+        total += graph[i][parent[i]]; 
+    } 
+    cout << "Total cost of MST: " << total << endl; 
+} 
+ 
+// Prim's Algorithm 
+void primMST(vector<vector<int>>& graph) { 
+    vector<int> parent(V);     // To store constructed MST 
+    vector<int> key(V, INT_MAX);   // Key values to pick min weight edge 
+    vector<bool> mstSet(V, false); // To represent vertices included in MST 
+ 
+    key[0] = 0;      // Start from first vertex 
+    parent[0] = -1;  // First node is root of MST 
+ 
+    for (int count = 0; count < V - 1; count++) { 
+        int u = minKey(key, mstSet); 
+        mstSet[u] = true; 
+ 
+        for (int v = 0; v < V; v++) 
+            if (graph[u][v] && !mstSet[v] && graph[u][v] < key[v]) 
+                parent[v] = u, key[v] = graph[u][v]; 
+    } 
+ 
+    printMST(parent, graph); 
+} 
+int main() { 
+    vector<vector<int>> graph = { 
+        {0, 2, 0, 6, 0}, 
+        {2, 0, 3, 8, 5}, 
+        {0, 3, 0, 0, 7}, 
+        {6, 8, 0, 0, 9}, 
+        {0, 5, 7, 9, 0} 
+    }; 
+ 
+    primMST(graph); 
+ 
+    return 0; 
+} 
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1
+
+************************************************************************************************************************
+
+Slip 4
+Q.1) Write a program to implement a Merge Sort algorithm to sort a given set of elements and determine the time required to sort the elements
+#include <iostream>
+#include <vector>
+#include <cstdlib>   // For rand()
+#include <ctime>     // For clock()
+
+using namespace std;
+
+// Merge function
+void merge(vector<int>& arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    // Temporary arrays
+    vector<int> L(n1), R(n2);
+
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    // Merge the temp arrays back into arr
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k++] = L[i++];
+        }
+        else {
+            arr[k++] = R[j++];
+        }
+    }
+
+    // Copy remaining elements of L[]
+    while (i < n1) {
+        arr[k++] = L[i++];
+    }
+
+    // Copy remaining elements of R[]
+    while (j < n2) {
+        arr[k++] = R[j++];
+    }
+}
+
+// Merge Sort function
+void mergeSort(vector<int>& arr, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+
+        merge(arr, left, mid, right);
+    }
+}
+
+int main() {
+    int n;
+    cout << "Enter number of elements to sort: ";
+    cin >> n;
+
+    vector<int> arr(n);
+
+    // Generate random elements
+    srand(time(0));
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 1000; // Values from 0 to 999
+    }
+
+    cout << "\nUnsorted array:\n";
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << "\n";
+
+    // Start time
+    clock_t start = clock();
+
+    mergeSort(arr, 0, n - 1);
+
+    // End time
+    clock_t end = clock();
+    double time_taken = double(end - start) / CLOCKS_PER_SEC;
+
+    cout << "\nSorted array:\n";
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << "\n";
+
+    cout << "\nTime taken by Merge Sort: " << time_taken << " seconds\n";
+
+    return 0;
+}
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1

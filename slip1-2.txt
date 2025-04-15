@@ -1,0 +1,386 @@
+Slip 1.
+Q.1) Write a program to sort a list of n numbers in ascending order using selection sort and determine the time required to sort the elements
+Ans : 
+cpp
+#include <iostream>
+#include <vector>
+#include <ctime>
+#include <cstdlib>
+using namespace std;
+
+// Function to generate random numbers
+vector<int> generateRandomArray(int n) {
+    vector<int> arr(n);
+    for (int i = 0; i < n; i++)
+        arr[i] = rand() % 10000; // Random numbers up to 9999
+    return arr;
+}
+
+// Selection Sort Function
+void selectionSort(vector<int> &arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIdx])
+                minIdx = j;
+        }
+        swap(arr[i], arr[minIdx]);
+    }
+}
+
+// Main function
+int main() {
+    int n;
+    cout << "Enter the number of elements to sort: ";
+    cin >> n;
+
+    // Generate random array
+    vector<int> data = generateRandomArray(n);
+
+    cout << "\nOriginal Array:\n";
+    for (int i = 0; i < n; i++) {
+        cout << data[i] << " ";
+    }
+    cout << "\n";
+
+    // Measure time
+    clock_t start = clock();
+    selectionSort(data);
+    clock_t end = clock();
+    double time_taken = double(end - start) / CLOCKS_PER_SEC;
+
+    // Output sorted array
+    cout << "\nSorted Array (Ascending Order):\n";
+    for (int i = 0; i < n; i++) {
+        cout << data[i] << " ";
+    }
+    cout << "\n";
+
+    // Output time taken
+    cout << "\nTime taken to sort " << n << " elements using Selection Sort: " << time_taken << " seconds\n";
+
+    return 0;
+}
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1
+
+
+Q.2) Write a program to sort a given set of elements using the Quick sort method and determine the time required to sort the elements. Repeat the experiment for different values of n, the number of elements in the list to be sorted. The elements can be read from a file or can be generated using the random number generator.
+Ans:
+#include <iostream> 
+#include <cstdlib> 
+#include <ctime> 
+#include <vector> 
+#include <fstream> 
+#include <chrono> 
+ 
+using namespace std; 
+using namespace std::chrono; 
+ 
+// Quick Sort Function 
+int partition(vector<int>& arr, int low, int high) { 
+    int pivot = arr[high]; // last element as pivot 
+    int i = low - 1; 
+ 
+    for(int j = low; j < high; j++) { 
+        if(arr[j] < pivot) { 
+            i++; 
+            swap(arr[i], arr[j]); 
+        } 
+    } 
+ 
+    swap(arr[i + 1], arr[high]); 
+    return i + 1; 
+} 
+ 
+void quickSort(vector<int>& arr, int low, int high) { 
+    if(low < high) { 
+        int pi = partition(arr, low, high); 
+        quickSort(arr, low, pi - 1); 
+        quickSort(arr, pi + 1, high); 
+    } 
+} 
+ 
+// Generate Random Numbers 
+void generateRandomNumbers(vector<int>& arr, int n) { 
+    srand(time(0)); 
+    for(int i = 0; i < n; ++i) { 
+        arr.push_back(rand() % 100000); // values between 0 and 99999 
+    } 
+} 
+ 
+// Read Numbers from File 
+void readFromFile(vector<int>& arr, string filename) { 
+    ifstream file(filename); 
+    int value; 
+    while(file >> value) { 
+        arr.push_back(value); 
+    } 
+    file.close(); 
+} 
+ 
+int main() { 
+    vector<int> arr; 
+    int n, choice; 
+ 
+    cout << "Enter number of elements: "; 
+    cin >> n; 
+ 
+    cout << "Choose input method:\n1. Random Numbers\n2. Read from file\nChoice: "; 
+    cin >> choice; 
+ 
+    if(choice == 1) { 
+        generateRandomNumbers(arr, n); 
+    } else if(choice == 2) { 
+        string filename; 
+        cout << "Enter file name: "; 
+        cin >> filename; 
+        readFromFile(arr, filename); 
+        n = arr.size(); 
+    } else { 
+        cout << "Invalid choice.\n"; 
+        return 1; 
+    } 
+ 
+    // Time Measurement 
+    auto start = high_resolution_clock::now(); 
+    quickSort(arr, 0, n - 1); 
+    auto end = high_resolution_clock::now(); 
+    auto duration = duration_cast<microseconds>(end - start); 
+ 
+    cout << "\nTime taken by Quick Sort for " << n << " elements: " 
+         << duration.count() << " microseconds\n"; 
+ 
+    return 0; 
+} 
+
+
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1
+
+****************************************************************************************************************
+
+Slip 2
+Q.1)  Write a program to sort n randomly generated elements using Heapsort method
+Ans:
+#include <iostream>
+#include <vector>
+#include <cstdlib>      // For rand() and srand()
+#include <ctime>        // For time()
+#include <chrono>       // For measuring time
+
+using namespace std;
+using namespace std::chrono;
+
+// Function to heapify a subtree rooted at index i
+void heapify(vector<int>& arr, int n, int i) {
+    int largest = i;       // Initialize largest as root
+    int left = 2 * i + 1;  // left child
+    int right = 2 * i + 2; // right child
+
+    // If left child is larger than root
+    if (left < n && arr[left] > arr[largest])
+        largest = left;
+
+    // If right child is larger than largest so far
+    if (right < n && arr[right] > arr[largest])
+        largest = right;
+
+    // If largest is not root
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, largest);
+    }
+}
+
+// Heapsort function
+void heapSort(vector<int>& arr, int n) {
+    // Build max heap
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    // One by one extract elements
+    for (int i = n - 1; i >= 0; i--) {
+        // Move current root to end
+        swap(arr[0], arr[i]);
+
+        // Call max heapify on the reduced heap
+        heapify(arr, i, 0);
+    }
+}
+
+int main() {
+    int n;
+
+    cout << "Enter the number of elements to sort: ";
+    cin >> n;
+
+    vector<int> arr(n);
+
+    // Seed random number generator
+    srand(time(0));
+
+    // Generate random numbers
+    for (int i = 0; i < n; ++i) {
+        arr[i] = rand() % 10000; // Random number between 0 and 9999
+    }
+
+    cout << "\nUnsorted array:\n";
+    for (int i = 0; i < n; ++i)
+        cout << arr[i] << " ";
+    cout << "\n";
+
+    // Measure time taken by heapsort
+    auto start = high_resolution_clock::now();
+
+    heapSort(arr, n);
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+
+    cout << "\nSorted array:\n";
+    for (int i = 0; i < n; ++i)
+        cout << arr[i] << " ";
+    cout << "\n";
+
+    cout << "\nTime taken by Heapsort: " << duration.count() << " milliseconds\n";
+
+    return 0;
+}
+
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1
+
+Q.2) Write a program to implement Strassen’s Matrix multiplication
+Ans:
+#include <iostream> 
+#include <vector> 
+using namespace std; 
+ 
+// Add two matrices 
+vector<vector<int>> add(vector<vector<int>> A, vector<vector<int>> B) { 
+    int n = A.size(); 
+    vector<vector<int>> result(n, vector<int>(n)); 
+    for(int i = 0; i < n; ++i) 
+        for(int j = 0; j < n; ++j) 
+            result[i][j] = A[i][j] + B[i][j]; 
+    return result; 
+} 
+ 
+// Subtract two matrices 
+vector<vector<int>> subtract(vector<vector<int>> A, vector<vector<int>> B) { 
+    int n = A.size(); 
+    vector<vector<int>> result(n, vector<int>(n)); 
+    for(int i = 0; i < n; ++i) 
+        for(int j = 0; j < n; ++j) 
+            result[i][j] = A[i][j] - B[i][j]; 
+    return result; 
+} 
+ 
+// Strassen's Matrix Multiplication 
+vector<vector<int>> strassen(vector<vector<int>> A, vector<vector<int>> B) { 
+    int n = A.size(); 
+ 
+    if(n == 1) { 
+        return {{A[0][0] * B[0][0]}}; 
+    } 
+ 
+    int newSize = n / 2; 
+    vector<int> inner(newSize); 
+    vector<vector<int>>  
+        A11(newSize, inner), A12(newSize, inner), A21(newSize, inner), A22(newSize, inner), 
+        B11(newSize, inner), B12(newSize, inner), B21(newSize, inner), B22(newSize, inner); 
+ 
+    // Dividing matrices into 4 submatrices 
+    for(int i = 0; i < newSize; ++i) { 
+        for(int j = 0; j < newSize; ++j) { 
+            A11[i][j] = A[i][j]; 
+            A12[i][j] = A[i][j + newSize]; 
+            A21[i][j] = A[i + newSize][j]; 
+            A22[i][j] = A[i + newSize][j + newSize]; 
+ 
+            B11[i][j] = B[i][j]; 
+            B12[i][j] = B[i][j + newSize]; 
+            B21[i][j] = B[i + newSize][j]; 
+            B22[i][j] = B[i + newSize][j + newSize]; 
+        } 
+    } 
+ 
+    // Calculating M1 to M7: 
+    vector<vector<int>> M1 = strassen(add(A11, A22), add(B11, B22)); 
+    vector<vector<int>> M2 = strassen(add(A21, A22), B11); 
+    vector<vector<int>> M3 = strassen(A11, subtract(B12, B22)); 
+    vector<vector<int>> M4 = strassen(A22, subtract(B21, B11)); 
+    vector<vector<int>> M5 = strassen(add(A11, A12), B22); 
+    vector<vector<int>> M6 = strassen(subtract(A21, A11), add(B11, B12)); 
+    vector<vector<int>> M7 = strassen(subtract(A12, A22), add(B21, B22)); 
+ 
+    // C11 to C22: 
+    vector<vector<int>> C11 = add(subtract(add(M1, M4), M5), M7); 
+    vector<vector<int>> C12 = add(M3, M5); 
+    vector<vector<int>> C21 = add(M2, M4); 
+    vector<vector<int>> C22 = add(subtract(add(M1, M3), M2), M6); 
+ 
+    // Combining results into a single matrix 
+    vector<vector<int>> C(n, vector<int>(n)); 
+    for(int i = 0; i < newSize; ++i) { 
+        for(int j = 0; j < newSize; ++j) { 
+            C[i][j] = C11[i][j]; 
+            C[i][j + newSize] = C12[i][j]; 
+            C[i + newSize][j] = C21[i][j]; 
+            C[i + newSize][j + newSize] = C22[i][j]; 
+        } 
+    } 
+ 
+    return C; 
+} 
+ 
+// Helper function to print matrix 
+void printMatrix(vector<vector<int>> matrix) { 
+    for(auto row : matrix) { 
+        for(auto val : row) 
+            cout << val << " "; 
+        cout << endl; 
+    } 
+} 
+ 
+// Main Function 
+int main() { 
+    int n; 
+    cout << "Enter the size of matrix (must be power of 2): "; 
+    cin >> n; 
+ 
+    vector<vector<int>> A(n, vector<int>(n)); 
+    vector<vector<int>> B(n, vector<int>(n)); 
+ 
+    cout << "Enter elements of Matrix A:\n"; 
+    for(int i = 0; i < n; ++i) 
+        for(int j = 0; j < n; ++j) 
+            cin >> A[i][j]; 
+ 
+    cout << "Enter elements of Matrix B:\n"; 
+    for(int i = 0; i < n; ++i) 
+for(int j = 0; j < n; ++j) 
+cin >> B[i][j]; 
+vector<vector<int>> C = strassen(A, B); 
+cout << "\nResultant Matrix (A x B):\n"; 
+printMatrix(C); 
+return 0; 
+} 
+OUTPUT:
+g++ program.cpp -o my_program
+./my_program     # On Linux/macOS
+
+g++ 1.cpp -o 1 && ./1

@@ -1,0 +1,305 @@
+Slip 7
+Q-1) Write a program for the Implementation of Dijkstra’s algorithm to find shortest path to other vertices 
+Ans;
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <queue>
+using namespace std;
+
+#define V 9  // Number of vertices in the graph
+
+// A utility function to find the vertex with the minimum distance value
+int minDistance(const vector<int>& dist, const vector<bool>& sptSet) {
+    int min = INT_MAX, min_index;
+    for (int v = 0; v < V; v++) {
+        if (!sptSet[v] && dist[v] <= min) {
+            min = dist[v], min_index = v;
+        }
+    }
+    return min_index;
+}
+
+// Function to implement Dijkstra's algorithm for finding the shortest path
+void dijkstra(int graph[V][V], int src) {
+    vector<int> dist(V, INT_MAX);  // Distance values
+    vector<bool> sptSet(V, false); // Shortest Path Tree set
+    dist[src] = 0;
+
+    // Priority queue to select the minimum distance vertex
+    for (int count = 0; count < V - 1; count++) {
+        int u = minDistance(dist, sptSet); // Get vertex with minimum distance
+        sptSet[u] = true;
+
+        for (int v = 0; v < V; v++) {
+            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+            }
+        }
+    }
+
+    // Print the shortest distance from the source
+    cout << "Vertex   Distance from Source" << endl;
+    for (int i = 0; i < V; i++) {
+        cout << i << " \t\t " << dist[i] << endl;
+    }
+}
+
+int main() {
+    // Adjacency matrix representation of the graph
+    int graph[V][V] = {
+        {0, 4, 0, 0, 0, 0, 0, 8, 0},
+        {4, 0, 8, 0, 0, 0, 0, 11, 0},
+        {0, 8, 0, 7, 0, 4, 0, 0, 2},
+        {0, 0, 7, 0, 9, 14, 0, 0, 0},
+        {0, 0, 0, 9, 0, 10, 0, 0, 0},
+        {0, 0, 4, 14, 10, 0, 2, 0, 0},
+        {0, 0, 0, 0, 0, 2, 0, 1, 6},
+        {8, 11, 0, 0, 0, 0, 1, 0, 7},
+        {0, 0, 2, 0, 0, 0, 6, 7, 0}
+    };
+    
+    int source = 0;  // Define source vertex (0 in this case)
+    
+    // Run Dijkstra's algorithm
+    dijkstra(graph, source);
+    
+    return 0;
+}
+Q.2) Write a program for finding Topological sorting for Directed Acyclic Graph (DAG)
+Ans:
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+// Function to perform Topological Sort
+void topologicalSort(int V, vector<int> adj[]) {
+    vector<int> in_degree(V, 0);
+    
+    // Calculate in-degree (number of incoming edges for each vertex)
+    for (int u = 0; u < V; u++) {
+        for (int v : adj[u]) {
+            in_degree[v]++;
+        }
+    }
+    
+    // Queue to store vertices with no incoming edges (in-degree = 0)
+    queue<int> q;
+    
+    // Add all vertices with in-degree 0 to the queue
+    for (int i = 0; i < V; i++) {
+        if (in_degree[i] == 0) {
+            q.push(i);
+        }
+    }
+
+    vector<int> topoOrder;
+
+    // Process vertices one by one
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        topoOrder.push_back(u);
+
+        // Decrease the in-degree of adjacent vertices
+        for (int v : adj[u]) {
+            in_degree[v]--;
+            // If in-degree becomes 0, add it to the queue
+            if (in_degree[v] == 0) {
+                q.push(v);
+            }
+        }
+    }
+
+    // If all vertices are processed, print the topological order
+    if (topoOrder.size() == V) {
+        cout << "Topological Sort: ";
+        for (int i : topoOrder) {
+            cout << i << " ";
+        }
+        cout << endl;
+    } else {
+        cout << "The graph contains a cycle, topological sort is not possible." << endl;
+    }
+}
+
+int main() {
+    // Number of vertices
+    int V = 6;
+    
+    // Adjacency list for the graph
+    vector<int> adj[V];
+    
+    // Add edges (directed edges)
+    adj[5].push_back(2);
+    adj[5].push_back(0);
+    adj[4].push_back(0);
+    adj[4].push_back(1);
+    adj[2].push_back(3);
+    adj[3].push_back(1);
+    
+    // Perform topological sort
+    topologicalSort(V, adj);
+    
+    return 0;
+}
+
+************************************************************************************************************************
+Slip 8:
+Q.1) Write a program to implement Fractional Knapsack problems using Greedy Method.
+ Ans:
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// Structure to represent an item
+struct Item {
+    int value;
+    int weight;
+    
+    // Constructor
+    Item(int v, int w) : value(v), weight(w) {}
+    
+    // Function to calculate value per unit weight
+    double valuePerWeight() const {
+        return (double)value / weight;
+    }
+};
+
+// Comparator to sort items based on value/weight ratio in descending order
+bool compare(Item a, Item b) {
+    return a.valuePerWeight() > b.valuePerWeight();
+}
+
+double fractionalKnapsack(int capacity, vector<Item>& items) {
+    // Sort items by value per unit weight
+    sort(items.begin(), items.end(), compare);
+    
+    double totalValue = 0.0;
+    
+    for (Item& item : items) {
+        if (capacity == 0) break;  // No more capacity in the knapsack
+        
+        // Take the whole item if it fits
+        if (item.weight <= capacity) {
+            totalValue += item.value;
+            capacity -= item.weight;
+        }
+        // Take as much as possible from the remaining item
+        else {
+            totalValue += item.value * ((double)capacity / item.weight);
+            break;
+        }
+    }
+    
+    return totalValue;
+}
+
+int main() {
+    int n, capacity;
+    
+    // Input number of items and knapsack capacity
+    cout << "Enter the number of items: ";
+    cin >> n;
+    cout << "Enter the capacity of the knapsack: ";
+    cin >> capacity;
+    
+    vector<Item> items;
+    
+    // Input the items' values and weights
+    cout << "Enter the value and weight for each item:" << endl;
+    for (int i = 0; i < n; ++i) {
+        int value, weight;
+        cout << "Item " << i + 1 << " - Value: ";
+        cin >> value;
+        cout << "Item " << i + 1 << " - Weight: ";
+        cin >> weight;
+        items.push_back(Item(value, weight));
+    }
+    
+    // Get the maximum value that can be carried in the knapsack
+    double maxValue = fractionalKnapsack(capacity, items);
+    
+    cout << "Maximum value in the knapsack = " << maxValue << endl;
+    
+    return 0;
+}
+
+Q.2) Write Program to implement Traveling Salesman Problem using nearest neighbor algorithm
+Ans:
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <cmath>
+using namespace std;
+
+// Function to calculate the distance between two cities
+double distance(int x1, int y1, int x2, int y2) {
+    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+}
+
+// Function to implement Nearest Neighbor Algorithm for TSP
+double nearestNeighborTSP(vector<pair<int, int>>& cities) {
+    int n = cities.size();
+    vector<bool> visited(n, false);
+    
+    // Start from the first city
+    visited[0] = true;
+    int currentCity = 0;
+    double totalDistance = 0.0;
+    
+    for (int i = 1; i < n; i++) {
+        double minDist = INT_MAX;
+        int nearestCity = -1;
+        
+        // Find the nearest unvisited city
+        for (int j = 0; j < n; j++) {
+            if (!visited[j]) {
+                double dist = distance(cities[currentCity].first, cities[currentCity].second, cities[j].first, cities[j].second);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestCity = j;
+                }
+            }
+        }
+        
+        // Add the distance to the total and mark the city as visited
+        totalDistance += minDist;
+        visited[nearestCity] = true;
+        currentCity = nearestCity;
+    }
+    
+    // Return to the starting city
+    totalDistance += distance(cities[currentCity].first, cities[currentCity].second, cities[0].first, cities[0].second);
+    
+    return totalDistance;
+}
+
+int main() {
+    int n;
+    
+    // Input the number of cities
+    cout << "Enter the number of cities: ";
+    cin >> n;
+    
+    vector<pair<int, int>> cities(n);
+    
+    // Input the coordinates (x, y) of each city
+    cout << "Enter the coordinates of each city:" << endl;
+    for (int i = 0; i < n; ++i) {
+        cout << "City " << i + 1 << " - x: ";
+        cin >> cities[i].first;
+        cout << "City " << i + 1 << " - y: ";
+        cin >> cities[i].second;
+    }
+    
+    // Get the shortest path using Nearest Neighbor Algorithm
+    double shortestDistance = nearestNeighborTSP(cities);
+    
+    cout << "Total distance of the shortest path: " << shortestDistance << endl;
+    
+    return 0;
+}
